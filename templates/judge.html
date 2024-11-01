@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ judge_name }}</h2>
+<p>Ongoing Performance: {{ performance }}</p>
+
+{% if is_voting %}
+    <h3>Rate Performance</h3>
+    <form method="POST">
+        {% for i in range(1, 6) %}
+            <label>Category {{ i }}: </label>
+            <input type="number" name="Category_{{ i }}" min="1" max="10" value="0" required>
+            <br>
+        {% endfor %}
+        <button type="submit">Submit Vote</button>
+    </form> 
+{% else %}
+    <p>Waiting for voting to start...</p>
+{% endif %}
+{% endblock %}

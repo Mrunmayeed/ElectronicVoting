@@ -1,0 +1,29 @@
+/* static/style.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+header nav a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.flash-messages {
+    list-style: none;
+    padding: 0;
+}
+
+.flash-messages li {
+    background-color: #ffdddd;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ff0000;
+}
