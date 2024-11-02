@@ -2,29 +2,40 @@
 
 {% block content %}
 <h2>Admin Dashboard</h2>
-<p>Ongoing Performance: {{ performance if performance > 0 else 'Waiting for performance to start' }}</p>
+
 
 <form method="POST">
-    <button name="action" value="start_performance" {{ 'disabled' if is_voting }}>Start Next Performance</button>
-    <button name="action" value="start_voting" {{ 'disabled' if is_voting }}>Start Voting</button>
-    <button name="action" value="end_voting" {{ '' if is_voting else 'disabled' }}>End Voting</button>
+    <label for="performance_id">Enter Performance ID:</label>
+    <input type="text" id="performance_id" name="performance_id" value="{{ performer['performance_id'] }}" required>
+    <button name="action" value="start_performance">Start Performance</button>
+    <button name="action" value="start_voting">Start Voting</button>
+    <button name="action" value="end_voting" >End Voting</button>
 </form>
 
-<h3>Cumulative Scores</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Category</th>
-            <th>Score</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for category, score in cumulative_scores.items() %}
-        <tr>
-            <td>{{ category }}</td>
-            <td>{{ score }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% if performer %}
+    <p>Current Performer ID: {{ performer['performance_id'] }}</p>
+    <p>Voting Status: {{ performer['is_voting_active']  }}</p>
+
+    {% if not performer['is_voting_active'] and performer['cumulative_scores'] %}
+        <h3>Cumulative Scores</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category, score in performer['cumulative_scores'].items() %}
+                    <tr>
+                        <td>{{ category }}</td>
+                        <td>{{ score }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    {% endif %}
+{% endif %}
+
 {% endblock %}

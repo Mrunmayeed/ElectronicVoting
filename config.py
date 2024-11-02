@@ -1,9 +1,9 @@
 # config.py
-USERS = {
-    "admin@sjsu.edu": {"username": "admin", "password": "admin123", "role": "admin"},
-    "juan@sjsu.edu": {"username": "judge1", "password": "judge001", "role": "judge"},
-    "j2@sjsu.edu": {"username": "judge2", "password": "judge002", "role": "judge"},
-    "j3@sjsu.edu": {"username": "judge3", "password": "judge003", "role": "judge"}
-}
+import os
 
-JUDGES = ["judge1", "judge2", "judge3"]
+AWS_REGION = "us-west-1"
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
+USERS_TABLE_NAME = "Users"
+SCORES_TABLE_NAME = "Scores"
+PERFORMERS_TABLE_NAME = "Performers"
