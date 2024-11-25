@@ -3,7 +3,7 @@ CS218 Midterm
 
 pip install -r requirements.txt
 
-export FLASK_APP=application.py
+export FLASK_APP=app.py
 export FLASK_ENV=development
 flask run
 1. Create tables in DynamoDB (bill by usage)
