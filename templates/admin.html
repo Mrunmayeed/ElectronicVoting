@@ -1,41 +1,146 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Admin Dashboard</h2>
+
+<style>
+    /* Style the admin dashboard heading */
+    .admin-dashboard h2 {
+        text-align: center;
+        font-size: 2em;
+        color: #4CAF50; /* Green to indicate an active/admin section */
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    /* Style the form container */
+    .admin-dashboard form {
+        max-width: 600px;
+        margin: 20px auto; /* Center the form */
+        padding: 20px;
+        background-color: #f9f9f9; /* Light gray background */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        font-family: Arial, sans-serif; /* Modern font */
+    }
+
+    /* Style the form labels */
+    .admin-dashboard label {
+        display: block;
+        font-size: 1em;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    /* Style the form input */
+    .admin-dashboard input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+
+    /* Style the buttons */
+    .admin-dashboard button {
+        margin: 5px;
+        padding: 10px 20px;
+        background-color: #4CAF50; /* Green */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .admin-dashboard button:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
+
+    /* Style the performer details */
+    .admin-dashboard .performer-details {
+        text-align: center;
+        font-size: 1.2em;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #eef;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    /* Style the table */
+    .admin-dashboard table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 1em;
+        font-family: Arial, sans-serif;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+
+    .admin-dashboard table th, .admin-dashboard table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .admin-dashboard table th {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+    }
+
+    .admin-dashboard table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .admin-dashboard table tr:hover {
+        background-color: #ddd;
+    }
+</style>    
 
 
-<form method="POST">
-    <label for="performance_id">Enter Performance ID:</label>
-    <input type="text" id="performance_id" name="performance_id" value="{{ performer['performance_id'] }}" required>
-    <button name="action" value="start_performance">Start Performance</button>
-    <button name="action" value="start_voting">Start Voting</button>
-    <button name="action" value="end_voting" >End Voting</button>
-</form>
+<div class="admin-dashboard">
+    <h2>Admin Dashboard</h2>
 
-{% if performer %}
-    <p>Current Performer ID: {{ performer['performance_id'] }}</p>
-    <p>Voting Status: {{ performer['is_voting_active']  }}</p>
+    <form method="POST">
+        <label for="performance_id">Enter Performance ID:</label>
+        <input type="text" id="performance_id" name="performance_id" value="{{ performer['performance_id'] }}" required>
+        <div class="form-buttons">
+            <button name="action" value="start_performance">Start Performance</button>
+            <button name="action" value="start_voting">Start Voting</button>
+            <button name="action" value="end_voting">End Voting</button>
+        </div>
+    </form>
 
-    {% if not performer['is_voting_active'] and performer['cumulative_scores'] %}
-        <h3>Cumulative Scores</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for category, score in performer['cumulative_scores'].items() %}
+    {% if performer %}
+        <div class="performer-details">
+            <p><strong>Current Performer ID:</strong> {{ performer['performance_id'] }}</p>
+            <p><strong>Voting Status:</strong> {{ performer['is_voting_active'] }}</p>
+        </div>
+
+        {% if not performer['is_voting_active'] and performer['cumulative_scores'] %}
+            <h3>Cumulative Scores</h3>
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ category }}</td>
-                        <td>{{ score }}</td>
+                        <th>Category</th>
+                        <th>Score</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    
+                </thead>
+                <tbody>
+                    {% for category, score in performer['cumulative_scores'].items() %}
+                        <tr>
+                            <td>{{ category }}</td>
+                            <td>{{ score }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     {% endif %}
-{% endif %}
-
+</div>
 {% endblock %}

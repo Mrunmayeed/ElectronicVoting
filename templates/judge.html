@@ -1,26 +1,260 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>{{ judge_name }}</h2>
-<p>Current Performance Voting</p>
+
+<style>
+/* Style the judge name heading */
+    .judge-header h2 {
+        text-align: center;
+        font-size: 2em;
+        color: #4CAF50; /* Green color for a positive tone */
+        margin-bottom: 10px;
+        font-weight: bold;
+        }
+
+        /* Style the performance voting description */
+    .judge-header p {
+        text-align: center;
+        font-size: 1.2em;
+        color: #555; /* Subtle gray for secondary information */
+        margin-bottom: 20px;
+    }
+    .select-performer {
+        max-width: 500px;
+        margin: 20px auto; /* Center the form */
+        padding: 20px;
+        background-color: #f9f9f9; /* Light gray background */
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        font-family: Arial, sans-serif; /* Modern font */
+    }
+
+    /* Style the heading */
+    .select-performer h3 {
+        text-align: center;
+        color: #333;
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+
+    /* Style the label */
+    .select-performer label {
+        display: block;
+        font-size: 1em;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    /* Style the dropdown (select element) */
+    .select-performer select {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        background-color: white;
+        box-sizing: border-box;
+    }
+
+    /* Add hover and focus effects to the select */
+    .select-performer select:focus {
+        border-color: #4CAF50; /* Green border on focus */
+        outline: none;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Subtle green glow */
+    }
+
+    /* Style the submit button (reuse from earlier) */
+    .select-performer button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: #4CAF50; /* Green background */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .select-performer button:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
+
+    .rate-performance {
+        max-width: 500px;
+        margin: 20px auto; /* Center the form */
+        padding: 20px;
+        background-color: #f9f9f9; /* Light gray background */
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        font-family: Arial, sans-serif; /* Modern font */
+    }
+
+    /* Style the heading */
+    .rate-performance h3 {
+        text-align: center;
+        color: #333;
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+
+    /* Style the labels and inputs */
+    .rate-performance label {
+        display: block;
+        font-size: 1em;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    .rate-performance input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+
+    /* Style the button */
+    .rate-performance button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: #4CAF50; /* Green background */
+        color: white;
+        border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+    }
+
+    .rate-performance button:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
+
+    .flash-message div{
+        background-color : #4CAF50; /* Success green */
+        color : white;
+        padding : 10px;
+        margin : 10px 0;
+        text-align : center;
+        border-radius : 5px;
+        box-shadow : 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="judge-header">
+    <h2>{{ judge_name }}</h2>
+    <p>Current Performance Voting</p>
+</div>
+
 
     
 <form method="POST">
 
-    <label for="performance_id">Select Performer:</label>
-    <select id="performance_id" name="performance_id" required>
-        {% for performer in active_performers %}
-            <option value="{{ performer}}">{{ performer }}</option>
-        {% endfor %}
-    </select>
+    <div class="select-performer">
+        <h3>Select Performer</h3>
+        <label for="performance_id">Select Performer:</label>
+        <select id="performance_id" name="performance_id" required>
+            {% for performer in active_performers %}
+                <option value="{{ performer }}">{{ performer }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-    <h3>Rate Performance</h3>
-    {% for i in range(1, 6) %}
-        <label>Category {{ i }}: </label>
-        <input type="number" name="Category_{{ i }}" min="1" max="10" value="0" required>
-        <br>
-    {% endfor %}
-    <button type="submit">Submit Vote</button>
+
+    <div class="rate-performance">
+        <h3>Rate Performance</h3>
+        {% for i in range(1, 6) %}
+            <label for="category_{{ i }}">Category {{ i }}:</label>
+            <input type="number" id="category_{{ i }}" name="Category_{{ i }}" min="1" max="10" value="0" required>
+        {% endfor %}
+        <button type="submit">Submit Vote</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+
+    <script>
+        
+        const socket = io('/judge');
+
+        // Confirm connection
+        socket.on('connect', () => {
+            console.log('Connected to /judge namespace!');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection Error:', error);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from /judge namespace');
+        });
+
+        // Listen for updates from the server
+        // socket.on('start_performance_channel', function (data) {
+        //     location.reload();  // Reload the entire page
+        //     console.log("Performance started:", data);
+        // });
+
+        socket.on('start_performance_channel', function (data) {
+            // console.log("Performance started:", data);
+            // Store the message data in sessionStorage
+            sessionStorage.setItem('flashMessage', data);
+            location.reload();  // Reload the page
+        });
+
+        // Display alert with the message after page reload
+        window.onload = function () {
+
+            const flashMessage = sessionStorage.getItem('flashMessage');
+
+            if (flashMessage) {
+
+                console.log("Performance started:", flashMessage);
+                const flashDiv = document.createElement('div');
+                flashDiv.className = 'flash-message';
+                // flashDiv.innerText = flashMessage
+                flashDiv.innerHTML = `<strong>Notice: </strong>Voting started for performer: ${flashMessage}<br>`;
+
+
+                // Style the flash message
+                flashDiv.style.backgroundColor = '#4CAF50'; /* Success green */
+                flashDiv.style.color = 'white';
+                flashDiv.style.padding = '10px';
+                flashDiv.style.margin = '10px 0';
+                flashDiv.style.textAlign = 'center';
+                flashDiv.style.borderRadius = '5px';
+                flashDiv.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+
+                const judgeHeader = document.querySelector('.judge-header');
+                if (judgeHeader) {
+                    judgeHeader.insertAdjacentElement('afterend', flashDiv);
+                    console.log("FlashDiv added after header.");
+                } else {
+                    console.error("Judge header not found. Appending to body instead.");
+                    document.body.prepend(flashDiv);
+                }
+
+                // Automatically remove after 5 seconds
+                setTimeout(() => {
+                    flashDiv.remove();
+                    console.log("FlashDiv removed.");
+                }, 5000);
+
+                // Clear the stored flash message
+                sessionStorage.removeItem('flashMessage');
+            }
+        };
+            
+    </script>
+
+    
+
 </form> 
 
 {% endblock %}

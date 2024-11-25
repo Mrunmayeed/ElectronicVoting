@@ -2,8 +2,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models.score_model import save_score
 from models.performer_model import get_active_performers
+from extensions import socketio
 
 judge_bp = Blueprint('judge', __name__, url_prefix="/judge")
+
 
 @judge_bp.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
@@ -13,10 +15,6 @@ def dashboard():
     print(session)
 
     active_performers = get_active_performers()
-    # performer = session.get("performance", 1)
-    # Get the performer's voting status
-    # performer = get_performer(performance_id)
-    # is_voting = performer["is_voting_active"]
 
     if request.method == "POST":
 
@@ -27,3 +25,4 @@ def dashboard():
         flash("Your vote has been submitted for performer: " + performance_id)
 
     return render_template("judge.html", judge_name=session["user"]["user_id"], active_performers=active_performers)
+

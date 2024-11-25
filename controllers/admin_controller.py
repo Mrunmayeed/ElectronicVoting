@@ -2,8 +2,14 @@
 from flask import Blueprint, render_template, session, request, flash, redirect, url_for
 from utils.score_utils import calculate_cumulative_scores
 from models.performer_model import create_performer, update_voting_status, update_cumulative_scores, get_performer
+from extensions import socketio
 
 admin_bp = Blueprint('admin', __name__, url_prefix="/admin")
+
+@socketio.on('connect', namespace='/judge')
+def handle_connect():
+    print("A Admin client connected to /judge namespace!")
+
 
 @admin_bp.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
@@ -11,9 +17,11 @@ def dashboard():
     if not session.get("user") or session["user"]["role"] != "admin":
         return redirect(url_for("auth.login"))
 
+
     if request.method == "POST":
         action = request.form.get("action")
         performance_id = request.form.get("performance_id")
+    
 
         if not performance_id:
             flash("Please enter a performance ID.")
@@ -28,6 +36,9 @@ def dashboard():
             session["performance"] = get_performer(performance_id)
             update_voting_status(session['performance']['performance_id'], True)
             session["performance"]["is_voting_active"] = True
+            socketio.emit('start_performance_channel', session['performance']['performance_id'], namespace='/judge')
+            print(f'Emitted msg to start_performance')
+
 
         elif action == "end_voting":
             session["performance"] = get_performer(performance_id)
